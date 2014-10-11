@@ -54,7 +54,7 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$HOME/bin:$HOME/code/fleet/bin"
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$HOME/bin:$HOME/code/fleet/bin:/usr/texbin"
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
@@ -72,7 +72,13 @@ export LANG=en_US.UTF-8
 
 # ssh
 # export SSH_KEY_PATH="~/.ssh/dsa_id"
+# alias emacs='open -a /Applications/Emacs.app $1'
+alias emacs='/Applications/Emacs.app/Contents/MacOS/Emacs'
 export EDITOR=emacs
 export TERM=xterm-256color
 alias gst='git status'
 alias gdc='git diff --cached'
+alias ll='ls -la'
+export DOCKER_HOST=tcp://192.168.59.103:2375
+export JAVA_HOME=`/usr/libexec/java_home`
+

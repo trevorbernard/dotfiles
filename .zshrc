@@ -48,7 +48,7 @@ ZSH_THEME="robbyrussell"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git docker lein tmux)
+plugins=(git docker lein tmux osx npm)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -79,6 +79,12 @@ export TERM=xterm-256color
 alias gst='git status'
 alias gdc='git diff --cached'
 alias ll='ls -la'
-export DOCKER_HOST=tcp://192.168.59.103:2375
-export JAVA_HOME=`/usr/libexec/java_home`
 
+export JAVA_HOME=`/usr/libexec/java_home`
+export PATH=$HOME/.composer/vendor/bin:$PATH
+export PATH=/Users/tbernard/Downloads/infer-osx-v0.4.0/infer/bin:$PATH
+
+source ~/z.sh
+
+# OPAM configuration
+. /Users/tbernard/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true

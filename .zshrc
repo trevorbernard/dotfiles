@@ -74,7 +74,7 @@ export LANG=en_US.UTF-8
 # export SSH_KEY_PATH="~/.ssh/dsa_id"
 # alias emacs='open -a /Applications/Emacs.app $1'
 alias emacs='/Applications/Emacs.app/Contents/MacOS/Emacs'
-export EDITOR=emacs
+export EDITOR='/Applications/Emacs.app/Contents/MacOS/Emacs -nw'
 export TERM=xterm-256color
 alias gst='git status'
 alias gdc='git diff --cached'
@@ -88,3 +88,4 @@ source ~/z.sh
 
 # OPAM configuration
 . /Users/tbernard/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi

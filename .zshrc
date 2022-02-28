@@ -6,6 +6,7 @@ export ZSH=$HOME/.oh-my-zsh
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
 ZSH_THEME="robbyrussell"
+# ZSH_THEME="Avit"
 
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
@@ -48,13 +49,14 @@ ZSH_THEME="robbyrussell"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git docker lein tmux osx npm)
+plugins=(git docker lein tmux macos npm)
 
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$HOME/bin:$HOME/code/fleet/bin:/usr/texbin"
+
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
@@ -89,3 +91,6 @@ source ~/z.sh
 # OPAM configuration
 . /Users/tbernard/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"

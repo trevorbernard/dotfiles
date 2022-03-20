@@ -1,3 +1,11 @@
 * Dotfiles
 
   My various dot files
+
+** TMUX
+
+   #+begin_src bash
+     brew install reattach-to-user-namespace
+     brew install pam-reattach
+   #+end_src
+

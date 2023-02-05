@@ -1,3 +1,6 @@
 [submodule "z"]
 	path = z
 	url = https://github.com/rupa/z.git
+[submodule ".tmux/tpm"]
+	path = .tmux/tpm
+	url = https://github.com/tmux-plugins/tpm

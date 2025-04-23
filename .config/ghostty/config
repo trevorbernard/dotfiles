@@ -1,0 +1,9 @@
+config-file = ?config_macos
+config-file = ?config_linux
+
+font-size = 20
+font-family = Fira Code Retina
+font-family = Fira Code
+
+keybind = ctrl+m=text:\r
+keybind = ctrl+i=text:\t

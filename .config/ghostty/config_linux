@@ -1,0 +1,8 @@
+window-decoration = true
+gtk-adwaita = true
+gtk-wide-tabs = true
+gtk-tabs-location = top
+gtk-titlebar = true
+
+keybind = super+c=copy_to_clipboard
+keybind = super+v=paste_from_clipboard

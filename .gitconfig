@@ -4,5 +4,30 @@
 	signingkey = F61C4C9E
 [alias]
 	co = checkout
+	bb = !better-branch.sh
 [commit]
 	gpgsign = false
+	verbose = true
+[init]
+	defaultBranch = main
+[fetch]
+	prune = true
+	all = true
+	pruneTags = true
+[column]
+	ui = auto
+[branch]
+	sort = -committerdate
+[tag]
+	sort = version:refname
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+	mnemonicPrefix = true
+	renames = true
+[push]
+	autoSetupRemote = true
+[pull]
+	rebase = true
+[core]
+	excludesFile = ~/.gitignore

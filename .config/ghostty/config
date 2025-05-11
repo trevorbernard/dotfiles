@@ -1,9 +1,13 @@
-config-file = ?config_macos
-config-file = ?config_linux
-
-font-size = 20
-font-family = Fira Code Retina
-font-family = Fira Code
+theme = catppuccin-macchiato
 
 keybind = ctrl+m=text:\r
 keybind = ctrl+i=text:\t
+keybind = ctrl+[=text:\x1b
+keybind = performable:ctrl+c=copy_to_clipboard
+keybind = ctrl+v=paste_from_clipboard
+
+# Fix how emacs handles C-<backspace>
+keybind = ctrl+backspace=text:\x1b\x7f
+
+config-file = ?config_macos
+config-file = ?config_linux

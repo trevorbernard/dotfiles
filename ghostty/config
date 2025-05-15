@@ -1,5 +1,10 @@
 theme = catppuccin-macchiato
 
+window-padding-x = 0
+window-padding-y = 0
+background-blur = true
+background-opacity = 0.95
+
 keybind = ctrl+m=text:\r
 keybind = ctrl+i=text:\t
 keybind = ctrl+[=text:\x1b

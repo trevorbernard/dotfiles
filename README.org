@@ -1,17 +1,56 @@
 * Dotfiles
 
-My various dot files
+My various configuration files managed with GNU Stow.
 
-** TMUX
+** Usage
 
-*** Mac specific configuration
+These dotfiles are managed using GNU Stow. To install a specific configuration:
+
+#+begin_src bash
+  stow -t $HOME <directory>
+#+end_src
+
+For example, to install tmux configuration:
+
+#+begin_src bash
+  stow -t $HOME tmux
+#+end_src
+
+To install all configurations at once:
+
+#+begin_src bash
+  for dir in */; do
+    stow -t $HOME ${dir%/}
+  done
+#+end_src
+
+** Configurations
+
+*** TMUX
+
+**** Mac specific configuration
 
 The following packages should be installed to get optimal TMUX experience on
 MacOS.
 
-   #+begin_src bash
-     brew install reattach-to-user-namespace
-     brew install pam-reattach
-   #+end_src
-   
+#+begin_src bash
+  brew install reattach-to-user-namespace
+  brew install pam-reattach
+#+end_src
+
+*** ZSH
+
+Configuration for ZSH shell with Starship prompt.
+
+*** Git
+
+Git configuration and aliases.
+
+*** Ghostty
+
+Configuration for the Ghostty terminal emulator with platform-specific settings.
+
+*** Lein
+
+Leiningen configuration for Clojure development with CIDER integration and useful aliases.
    

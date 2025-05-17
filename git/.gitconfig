@@ -4,6 +4,9 @@
 	signingkey = F61C4C9E
 [alias]
 	co = checkout
+	br = branch
+	ci = commit
+	st = status
 	bb = !better-branch.sh
 [commit]
 	gpgsign = false

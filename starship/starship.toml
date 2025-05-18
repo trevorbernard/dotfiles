@@ -6,8 +6,19 @@ $git_branch\
 $git_state\
 $git_status\
 $git_metrics\
+$nix_shell\
+\n\
 $character
 """
+
+[username]
+format = "[$user](bold yellow)"
+
+[hostname]
+ssh_only = true
+format = "@[$hostname](bold green) "
+trim_at = "."
+disabled = false
 
 add_newline = true
 
@@ -21,6 +32,9 @@ symbol = ' '
 [character]
 success_symbol = '[➜](bold green)'
 error_symbol = '[➜](bold red)'
+
+[nix_shell]
+format = "via [❄️ $state( $name)](bold blue) "
 
 [package]
 disabled = true

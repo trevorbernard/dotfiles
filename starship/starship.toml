@@ -7,6 +7,7 @@ $git_state\
 $git_status\
 $git_metrics\
 $nix_shell\
+$aws\
 \n\
 $character
 """

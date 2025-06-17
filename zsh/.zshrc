@@ -5,3 +5,4 @@ alias gdc='git diff --cached'
 eval "$(direnv hook zsh)"
 eval "$(zoxide init zsh)"
 eval "$(fzf --zsh)"
+eval "$(atuin init zsh)"

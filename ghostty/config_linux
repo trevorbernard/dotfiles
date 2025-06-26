@@ -1,9 +1,9 @@
 font-size = 16
-font-family = Jetbrains Mono
+font-family = JetBrains Mono
 
-# makes the ghosty window match the selected theme.
 window-theme = ghostty
 gtk-single-instance = true
+
 window-decoration = false
 window-padding-x = 5
 window-padding-y = 5

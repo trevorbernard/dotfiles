@@ -4,8 +4,6 @@ alias lt='ls --tree'
 alias gst='git status'
 alias gdc='git diff --cached'
 
-alias j='z'
-alias jj='zi'
 alias cd='z'
 
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS=(

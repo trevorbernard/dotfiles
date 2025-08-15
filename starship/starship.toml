@@ -35,7 +35,8 @@ success_symbol = '[➜](bold green)'
 error_symbol = '[➜](bold red)'
 
 [nix_shell]
-format = "via [❄️ $state( $name)](bold blue) "
+impure_msg = ''
+format = "via [❄️ $state($name)](bold blue) "
 
 [package]
 disabled = true

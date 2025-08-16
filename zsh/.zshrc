@@ -3,7 +3,7 @@ alias ll='ls -lag'
 alias lt='ls --tree'
 alias gst='git status'
 alias gdc='git diff --cached'
-
+alias e='emacs'
 alias cd='z'
 
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS=(

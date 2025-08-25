@@ -12,6 +12,9 @@ $aws\
 $character
 """
 
+[aws]
+symbol = '☁️ ' 
+
 [username]
 format = "[$user](bold yellow)"
 

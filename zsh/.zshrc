@@ -14,6 +14,9 @@ if [[ "$OS" == "macos" ]]; then
   if [[ -d "/opt/homebrew/share/zsh/site-functions" ]]; then
     fpath=("/opt/homebrew/share/zsh/site-functions" $fpath)
   fi
+  if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+    . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+  fi
 elif [[ "$OS" == "linux" ]]; then
   # User bin directory
   export PATH="$HOME/bin:$PATH"
@@ -94,7 +97,7 @@ fi
 # Environment variables
 export EDITOR="emacs"
 export COLORTERM="truecolor"
-export TERM="xterm-direct"
+export TERM="xterm-ghostty"
 
 # Tool initialization (only if tools are available)
 if command -v direnv >/dev/null 2>&1; then

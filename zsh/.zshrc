@@ -8,6 +8,7 @@ esac
 
 # Set PATH for different OSes
 if [[ "$OS" == "macos" ]]; then
+  export XDG_CONFIG_HOME="$HOME/.config"
   # Homebrew paths for macOS
   export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
   # Add Homebrew's site-functions to fpath for completions

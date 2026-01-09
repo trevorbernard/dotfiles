@@ -23,45 +23,43 @@ elif [[ "$OS" == "linux" ]]; then
   export PATH="$HOME/bin:$PATH"
 fi
 
-# Oh My Zsh setup
-export ZSH="$HOME/.oh-my-zsh"
+# Plugin directory (vanilla zsh)
+ZSH_PLUGINS="$HOME/.zsh/plugins"
 
-# Install Oh My Zsh if not present
-if [[ ! -d "$ZSH" ]]; then
-  echo "Installing Oh My Zsh..."
-  sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-fi
+# History configuration
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt SHARE_HISTORY
 
-# Theme
-ZSH_THEME=""  # We use starship instead
-
-# Plugins
-plugins=(
-  direnv
-  fzf
-  git
-  sudo
-)
-
-# Load Oh My Zsh
-source $ZSH/oh-my-zsh.sh
-
-# Install and configure zsh plugins
-ZSH_CUSTOM="$ZSH/custom"
+# Sudo widget (replaces oh-my-zsh sudo plugin)
+sudo-command-line() {
+    [[ -z $BUFFER ]] && zle up-history
+    if [[ $BUFFER != sudo\ * ]]; then
+        BUFFER="sudo $BUFFER"
+        CURSOR=$#BUFFER
+    fi
+}
+zle -N sudo-command-line
+bindkey '\e\e' sudo-command-line
 
 # zsh-autosuggestions
-if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]]; then
-  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+if [[ ! -d "$ZSH_PLUGINS/zsh-autosuggestions" ]]; then
+  mkdir -p "$ZSH_PLUGINS"
+  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_PLUGINS/zsh-autosuggestions"
 fi
 
 # zsh-syntax-highlighting
-if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+if [[ ! -d "$ZSH_PLUGINS/zsh-syntax-highlighting" ]]; then
+  mkdir -p "$ZSH_PLUGINS"
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_PLUGINS/zsh-syntax-highlighting"
 fi
 
 # Load plugins
-source "$ZSH_CUSTOM/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" 2>/dev/null
-source "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" 2>/dev/null
+source "$ZSH_PLUGINS/zsh-autosuggestions/zsh-autosuggestions.zsh" 2>/dev/null
+source "$ZSH_PLUGINS/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" 2>/dev/null
 
 # Autosuggestions configuration
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5b6078"
@@ -100,6 +98,10 @@ export EDITOR="emacs"
 export COLORTERM="truecolor"
 export TERM="xterm-ghostty"
 
+# Enable completions
+autoload -Uz compinit
+compinit
+
 # Tool initialization (only if tools are available)
 if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook zsh)"
@@ -121,14 +123,11 @@ if command -v atuin >/dev/null 2>&1; then
   eval "$(atuin init zsh)"
 fi
 
-# Enable completions
-autoload -Uz compinit
-compinit
-
 # OS-specific configurations
 case "$OS" in
   macos)
     # macOS specific settings
+    export PATH=/Applications/SnowSQL.app/Contents/MacOS:/Applications/SnowflakeCLI.app/Contents/MacOS:$PATH
     ;;
   linux)
     # Linux specific settings

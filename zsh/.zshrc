@@ -32,8 +32,13 @@ HISTSIZE=10000
 SAVEHIST=10000
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
+setopt HIST_VERIFY
 setopt SHARE_HISTORY
 setopt AUTO_CD
+setopt CORRECT
+setopt NO_BEEP
+setopt EXTENDED_GLOB
 
 # Sudo widget (replaces oh-my-zsh sudo plugin)
 sudo-command-line() {
@@ -65,7 +70,6 @@ source "$ZSH_PLUGINS/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" 2>/dev
 # Autosuggestions configuration
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5b6078"
 export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
-export ZSH_AUTOSUGGEST_USE_ASYNC=1
 
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS=(
     history-search-forward
@@ -76,7 +80,7 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS=(
 )
 
 # Aliases (OS-specific)
-if command -v eza >/dev/null 2>&1; then
+if (( $+commands[eza] )); then
   alias ls='eza --group-directories-first --color=always'
   alias ll='ls -lag'
   alias lt='ls --tree'
@@ -90,39 +94,39 @@ alias gdc='git diff --cached'
 alias e='emacs'
 
 # Only alias cd to z if zoxide is available
-if command -v zoxide >/dev/null 2>&1; then
+if (( $+commands[zoxide] )); then
   alias cd='z'
 fi
 
 # Environment variables
 export EDITOR="emacs"
 export COLORTERM="truecolor"
-export TERM="xterm-ghostty"
 
-# Enable completions
+# zsh-completions (additional completion definitions)
+if [[ ! -d "$ZSH_PLUGINS/zsh-completions" ]]; then
+  git clone https://github.com/zsh-users/zsh-completions "$ZSH_PLUGINS/zsh-completions"
+fi
+fpath=("$ZSH_PLUGINS/zsh-completions/src" $fpath)
+
+# Enable completions (with caching)
 autoload -Uz compinit
-compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
+
+# Completion styling
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
 # Tool initialization (only if tools are available)
-if command -v direnv >/dev/null 2>&1; then
-  eval "$(direnv hook zsh)"
-fi
-
-if command -v zoxide >/dev/null 2>&1; then
-  eval "$(zoxide init zsh)"
-fi
-
-if command -v fzf >/dev/null 2>&1; then
-  eval "$(fzf --zsh)"
-fi
-
-if command -v starship >/dev/null 2>&1; then
-  eval "$(starship init zsh)"
-fi
-
-if command -v atuin >/dev/null 2>&1; then
-  eval "$(atuin init zsh)"
-fi
+(( $+commands[direnv] )) && eval "$(direnv hook zsh)"
+(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
+(( $+commands[fzf] )) && eval "$(fzf --zsh)"
+(( $+commands[starship] )) && eval "$(starship init zsh)"
+(( $+commands[atuin] )) && eval "$(atuin init zsh)"
 
 # OS-specific configurations
 case "$OS" in

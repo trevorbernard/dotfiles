@@ -1,23 +1,26 @@
+# Theme
 theme = catppuccin-macchiato.conf
 
+# Visual
 background-blur = true
 background-opacity = 0.95
 background-blur-radius = 20
+window-padding-x = 5
+window-padding-y = 5
 
+# Keybindings - Terminal control characters
 keybind = ctrl+m=text:\r
 keybind = ctrl+i=text:\t
 keybind = ctrl+[=text:\x1b
+keybind = shift+enter=text:\x1b\r
 
-# Verify these actually provide value
-keybind = ctrl+,=text:\x1b[44;5u
+# Keybindings - Emacs compatibility
+keybind = ctrl+backspace=text:\x1b\x7f
 
+# Keybindings - Clipboard (override default ctrl+shift)
 keybind = performable:ctrl+c=copy_to_clipboard
 keybind = ctrl+v=paste_from_clipboard
 
-# Fix how emacs handles C-<backspace>
-keybind = ctrl+backspace=text:\x1b\x7f
-
+# Platform overrides
 config-file = ?config_macos
 config-file = ?config_linux
-
-keybind = shift+enter=text:\x1b\r

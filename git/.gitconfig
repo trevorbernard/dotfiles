@@ -1,7 +1,7 @@
 [user]
 	name = Trevor Bernard
-	email = trevor.bernard@gmail.com
-	signingkey = F61C4C9E
+[include]
+	path = ~/.gitconfig.local
 [alias]
 	co = checkout
 	br = branch

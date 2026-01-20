@@ -46,6 +46,16 @@ Configuration for ZSH shell with Starship prompt.
 
 Git configuration and aliases.
 
+**** Machine-specific email
+
+The git config uses an include directive to load machine-specific settings from
+=~/.gitconfig.local=. After stowing, set up your email:
+
+#+begin_src bash
+  cp ~/.gitconfig.local.example ~/.gitconfig.local
+  # Edit ~/.gitconfig.local to set your email
+#+end_src
+
 *** Ghostty
 
 Configuration for the Ghostty terminal emulator with platform-specific settings.

@@ -1,2 +1,3 @@
 tmux/.tmux/plugins
 .gitconfig.local
+.claude/settings.local.json

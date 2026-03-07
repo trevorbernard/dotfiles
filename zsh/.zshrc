@@ -23,6 +23,9 @@ elif [[ "$OS" == "linux" ]]; then
   export PATH="$HOME/bin:$PATH"
 fi
 
+# User local bin
+export PATH="$HOME/.local/bin:$PATH"
+
 # Plugin directory (vanilla zsh)
 ZSH_PLUGINS="$HOME/.zsh/plugins"
 

@@ -96,10 +96,7 @@ alias gst='git status'
 alias gdc='git diff --cached'
 alias e='emacs'
 
-# Only alias cd to z if zoxide is available
-if (( $+commands[zoxide] )); then
-  alias cd='z'
-fi
+
 
 # Environment variables
 export EDITOR="emacs"
@@ -126,7 +123,13 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
 # Tool initialization (only if tools are available)
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
-(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
+if (( $+commands[zoxide] )); then
+  if [[ "$CLAUDECODE" != "1" ]]; then
+    eval "$(zoxide init --cmd cd zsh)"
+  else
+    eval "$(zoxide init zsh)"
+  fi
+fi
 (( $+commands[fzf] )) && eval "$(fzf --zsh)"
 (( $+commands[starship] )) && eval "$(starship init zsh)"
 (( $+commands[atuin] )) && eval "$(atuin init zsh)"

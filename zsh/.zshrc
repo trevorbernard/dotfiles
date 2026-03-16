@@ -124,10 +124,9 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 # Tool initialization (only if tools are available)
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
 if (( $+commands[zoxide] )); then
+  eval "$(zoxide init zsh)"
   if [[ "$CLAUDECODE" != "1" ]]; then
-    eval "$(zoxide init --cmd cd zsh)"
-  else
-    eval "$(zoxide init zsh)"
+    alias cd='z'
   fi
 fi
 (( $+commands[fzf] )) && eval "$(fzf --zsh)"

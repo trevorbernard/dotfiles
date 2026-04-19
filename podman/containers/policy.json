@@ -1,7 +1,16 @@
 {
-    "default": [
-        {
-            "type": "insecureAcceptAnything"
+    "default": [{"type": "reject"}],
+    "transports": {
+        "docker": {
+            "docker.io": [{"type": "insecureAcceptAnything"}],
+            "ghcr.io": [{"type": "insecureAcceptAnything"}],
+            "quay.io": [{"type": "insecureAcceptAnything"}],
+            "registry.k8s.io": [{"type": "insecureAcceptAnything"}],
+            "gcr.io": [{"type": "insecureAcceptAnything"}],
+            "public.ecr.aws": [{"type": "insecureAcceptAnything"}]
+        },
+        "docker-daemon": {
+            "": [{"type": "insecureAcceptAnything"}]
         }
-    ]
+    }
 }

@@ -17,7 +17,7 @@ Modern git configuration with sensible defaults, useful aliases, and machine-spe
 | `br`  | `branch`   | List/manage branches |
 | `ci`  | `commit`   | Create a commit      |
 | `st`  | `status`   | Show working tree    |
-| `bb`  | `better-branch.sh` | Enhanced branch view |
+| `bb`  | `better-branch` | Enhanced branch view |
 
 ## Configuration Highlights
 

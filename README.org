@@ -34,8 +34,8 @@ To install everything at once:
 
 *** bin
 
-Personal shell scripts (~better-branch.sh~, ~eat-trailing-whitespace.sh~,
-~osc52-copy.sh~). Stowed directly to ~$HOME/bin~:
+Personal shell scripts (~better-branch~, ~eat-trailing-whitespace~,
+~osc52-copy~). Stowed directly to ~$HOME/bin~:
 
 #+begin_src bash
   stow -t $HOME/bin bin

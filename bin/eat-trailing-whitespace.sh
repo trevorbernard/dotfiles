@@ -12,12 +12,10 @@ fi
 echo "Processing staged files for trailing whitespace removal..."
 
 for file in $staged_files; do
-    if [ -f "$file" ]; then
-        if grep -q '[[:space:]]$' "$file"; then
-            echo "Removing trailing whitespace from: $file"
-            sed -i 's/[[:space:]]*$//' "$file"
-            git add "$file"
-        fi
+    if [ -f "$file" ] && grep -q '[[:space:]]$' "$file"; then
+        echo "Removing trailing whitespace from: $file"
+        perl -i -pe 's/[ \t\r]+$//' "$file"
+        git add "$file"
     fi
 done
 

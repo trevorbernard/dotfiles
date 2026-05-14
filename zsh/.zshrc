@@ -9,6 +9,7 @@ esac
 # Set PATH for different OSes
 if [[ "$OS" == "macos" ]]; then
   export XDG_CONFIG_HOME="$HOME/.config"
+  export PATH="$HOME/bin:$PATH"
   if [[ -x "/opt/homebrew/bin/brew" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
   fi

@@ -4,7 +4,8 @@ My various configuration files managed with GNU Stow.
 
 ** Usage
 
-These dotfiles are managed using GNU Stow. To install a specific configuration:
+Most packages are installed by stowing into ~$HOME~ (their internal
+structure already includes the leading dot, e.g. ~tmux/.tmux.conf~):
 
 #+begin_src bash
   stow -t $HOME <directory>
@@ -16,22 +17,95 @@ For example, to install tmux configuration:
   stow -t $HOME tmux
 #+end_src
 
-To install all configurations at once:
+Packages whose files live outside ~$HOME~ (under ~~/.config~, ~~/bin~,
+~~/.claude~) use a different stow target — see the per-section notes
+below.
+
+To install everything at once:
 
 #+begin_src bash
-  for dir in */; do
-    stow -t $HOME ${dir%/}
-  done
+  for pkg in git lein tmux zsh; do stow -t $HOME $pkg; done
+  stow -t $HOME/bin bin
+  stow -t $HOME/.claude claude
+  stow -t $HOME/.config ghostty starship
 #+end_src
 
 ** Configurations
+
+*** bin
+
+Personal shell scripts (~better-branch.sh~, ~eat-trailing-whitespace.sh~,
+~osc52-copy.sh~). Stowed directly to ~$HOME/bin~:
+
+#+begin_src bash
+  stow -t $HOME/bin bin
+#+end_src
+
+The macOS branch of the zsh config adds ~$HOME/bin~ to ~PATH~ (the linux
+branch already does).
+
+*** Claude
+
+Claude Code settings (~CLAUDE.md~ and ~settings.local.json~). Stowed to
+~$HOME/.claude~:
+
+#+begin_src bash
+  stow -t $HOME/.claude claude
+#+end_src
+
+*** Ghostty
+
+Configuration for the Ghostty terminal emulator with platform-specific
+splits (~config~, ~config_macos~, ~config_linux~). Stowed to
+~$HOME/.config~ (creates ~$HOME/.config/ghostty/~):
+
+#+begin_src bash
+  stow -t $HOME/.config ghostty
+#+end_src
+
+*** Git
+
+Git configuration and aliases.
+
+**** Machine-specific email
+
+The git config uses an include directive to load machine-specific
+settings from ~~/.gitconfig.local~. After stowing, set up your email:
+
+#+begin_src bash
+  cp ~/.gitconfig.local.example ~/.gitconfig.local
+  # Edit ~/.gitconfig.local to set your email
+#+end_src
+
+*** Lein
+
+Leiningen configuration for Clojure development with CIDER integration
+and useful aliases.
+
+*** Podman
+
+Container registry policy (~containers/policy.json~). Intended for
+~$HOME/.config/containers/policy.json~; not currently installed:
+
+#+begin_src bash
+  stow -t $HOME/.config podman
+#+end_src
+
+*** Starship
+
+Starship prompt configuration. Stowed to ~$HOME/.config~ (creates
+~$HOME/.config/starship.toml~):
+
+#+begin_src bash
+  stow -t $HOME/.config starship
+#+end_src
 
 *** TMUX
 
 **** Mac specific configuration
 
-The following packages should be installed to get optimal TMUX experience on
-MacOS.
+The following packages should be installed to get optimal TMUX experience
+on MacOS.
 
 #+begin_src bash
   brew install reattach-to-user-namespace
@@ -41,26 +115,3 @@ MacOS.
 *** ZSH
 
 Configuration for ZSH shell with Starship prompt.
-
-*** Git
-
-Git configuration and aliases.
-
-**** Machine-specific email
-
-The git config uses an include directive to load machine-specific settings from
-=~/.gitconfig.local=. After stowing, set up your email:
-
-#+begin_src bash
-  cp ~/.gitconfig.local.example ~/.gitconfig.local
-  # Edit ~/.gitconfig.local to set your email
-#+end_src
-
-*** Ghostty
-
-Configuration for the Ghostty terminal emulator with platform-specific settings.
-
-*** Lein
-
-Leiningen configuration for Clojure development with CIDER integration and useful aliases.
-   

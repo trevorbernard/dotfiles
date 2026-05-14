@@ -9,11 +9,8 @@ esac
 # Set PATH for different OSes
 if [[ "$OS" == "macos" ]]; then
   export XDG_CONFIG_HOME="$HOME/.config"
-  # Homebrew paths for macOS
-  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
-  # Add Homebrew's site-functions to fpath for completions
-  if [[ -d "/opt/homebrew/share/zsh/site-functions" ]]; then
-    fpath=("/opt/homebrew/share/zsh/site-functions" $fpath)
+  if [[ -x "/opt/homebrew/bin/brew" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
   if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
     . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'

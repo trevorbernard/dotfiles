@@ -28,6 +28,7 @@ To install everything at once:
   stow -t $HOME/bin bin
   stow -t $HOME/.claude claude
   stow -t $HOME/.config ghostty starship
+  stow -t $HOME/.config/hunk hunk
 #+end_src
 
 ** Configurations
@@ -76,6 +77,20 @@ settings from ~~/.gitconfig.local~. After stowing, set up your email:
   cp ~/.gitconfig.local.example ~/.gitconfig.local
   # Edit ~/.gitconfig.local to set your email
 #+end_src
+
+*** Hunk
+
+Configuration for the Hunk terminal diff viewer (~config.toml~). Stowed
+to ~$HOME/.config/hunk~ rather than ~$HOME/.config~ so the directory
+itself stays real — Hunk writes runtime state (~state.json~) alongside
+the config, and that shouldn't end up in this repo:
+
+#+begin_src bash
+  stow -t $HOME/.config/hunk hunk
+#+end_src
+
+The target directory must exist first (run ~hunk~ once or ~mkdir -p
+~/.config/hunk~).
 
 *** Lein
 

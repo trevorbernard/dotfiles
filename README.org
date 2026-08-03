@@ -29,6 +29,7 @@ To install everything at once:
   stow -t $HOME/.claude claude
   stow -t $HOME/.config ghostty starship
   stow -t $HOME/.config/hunk hunk
+  stow -t $HOME/.config/tuicr tuicr
 #+end_src
 
 ** Configurations
@@ -125,6 +126,16 @@ on MacOS.
 #+begin_src bash
   brew install reattach-to-user-namespace
   brew install pam-reattach
+#+end_src
+
+*** Tuicr
+
+Configuration for the tuicr code review TUI (~config.toml~). Stowed to
+~$HOME/.config/tuicr~ so the directory itself stays real:
+
+#+begin_src bash
+  mkdir -p ~/.config/tuicr
+  stow -t $HOME/.config/tuicr tuicr
 #+end_src
 
 *** ZSH

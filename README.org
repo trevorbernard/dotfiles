@@ -39,7 +39,14 @@ throwaway git repositories under a temp directory, so they never touch
 this one:
 
 #+begin_src bash
+  ./tests/test-better-branch
   ./tests/test-eat-trailing-whitespace
+#+end_src
+
+Or all of them, stopping at the first failure:
+
+#+begin_src bash
+  for t in tests/test-*; do "$t" || break; done
 #+end_src
 
 ~tests/~ is deliberately not a stow package — ~bin/~ is stowed onto

@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+# Exercises bin/better-branch, in particular the field splitting: @ is legal in
+# a refname, so it cannot be used as a column separator.
+#
+# Each case builds a throwaway repo under a temp dir; nothing touches this one.
+
+set -uo pipefail
+
+readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly SCRIPT="$REPO_ROOT/bin/better-branch"
+
+if [ ! -x "$SCRIPT" ]; then
+    echo "Not executable: $SCRIPT" >&2
+    exit 1
+fi
+
+readonly TMPDIR_TEST="$(mktemp -d)"
+trap 'rm -rf "$TMPDIR_TEST"' EXIT
+
+passed=0
+failed=0
+
+check() {
+    local label="$1" expected="$2" actual="$3"
+    if [ "$expected" = "$actual" ]; then
+        echo "  PASS  $label"
+        passed=$((passed + 1))
+    else
+        echo "  FAIL  $label"
+        echo "        expected: $(printf %q "$expected")"
+        echo "        actual:   $(printf %q "$actual")"
+        failed=$((failed + 1))
+    fi
+}
+
+# Runs the script and strips ANSI colour so output can be compared as text.
+run_plain() {
+    "$SCRIPT" 2>&1 | sed 's/\x1b\[[0-9;]*m//g'
+}
+
+# Returns the whitespace-collapsed row for a given branch name.
+row_for() {
+    run_plain | grep -F " $1 " | tr -s ' ' | sed 's/ *$//'
+}
+
+new_repo() {
+    rm -rf "$TMPDIR_TEST/r"
+    mkdir -p "$TMPDIR_TEST/r"
+    cd "$TMPDIR_TEST/r" || exit 1
+    git init -q -b main .
+    git config user.email test@example.com
+    git config user.name "Test"
+    echo base > f.txt
+    git add .
+    git commit -qm base
+}
+
+echo "== 1. branch name containing @ is not split =="
+new_repo
+git checkout -q -b 'feature@v2'
+echo work > a.txt
+git add .
+git commit -qm work
+git checkout -q main
+output=$(run_plain)
+check "full branch name present" "1"   "$(echo "$output" | grep -cF 'feature@v2')"
+check "no truncated name"        "0"   "$(echo "$output" | grep -cE '(^| )feature( |$)')"
+check "ahead/behind intact"      "1 0" "$(row_for 'feature@v2' | cut -d' ' -f1,2)"
+check "timestamp not eaten"      "1"   "$(echo "$output" | grep -cF 'ago')"
+
+echo "== 2. ahead and behind counts =="
+new_repo
+git checkout -q -b topic
+echo c1 > c1.txt && git add . && git commit -qm c1
+echo c2 > c2.txt && git add . && git commit -qm c2
+git checkout -q main
+echo m1 > m1.txt && git add . && git commit -qm m1
+# topic has 2 commits main lacks, main has 1 topic lacks.
+check "ahead=2 behind=1" "2 1" "$(row_for topic | cut -d' ' -f1,2)"
+
+echo "== 3. merged branches are omitted =="
+new_repo
+git checkout -q -b merged-topic
+echo x > x.txt && git add . && git commit -qm x
+git checkout -q main
+git merge -q --no-ff -m merge merged-topic
+check "merged branch hidden" "0" "$(run_plain | grep -c 'merged-topic')"
+
+echo "== 4. descriptions render, including @ and spaces =="
+new_repo
+git checkout -q -b described
+echo y > y.txt && git add . && git commit -qm y
+git checkout -q main
+git config branch.described.description 'ticket ABC-1 @ sprint two'
+output=$(run_plain)
+check "header shown"       "1" "$(echo "$output" | grep -c 'Description')"
+check "description intact" "1" "$(echo "$output" | grep -cF 'ticket ABC-1 @ sprint two')"
+
+echo "== 5. multi-line description collapses to first line =="
+new_repo
+git checkout -q -b multi
+echo z > z.txt && git add . && git commit -qm z
+git checkout -q main
+git config branch.multi.description 'first line
+second line'
+output=$(run_plain)
+check "first line kept"     "1" "$(echo "$output" | grep -cF 'first line')"
+check "second line dropped" "0" "$(echo "$output" | grep -cF 'second line')"
+check "no extra rows"       "3" "$(echo "$output" | grep -c .)"
+
+echo "== 6. no description column when no branch has one =="
+new_repo
+git checkout -q -b plain
+echo w > w.txt && git add . && git commit -qm w
+git checkout -q main
+check "no Description header" "0" "$(run_plain | grep -c 'Description')"
+
+echo "== 7. no unmerged branches =="
+new_repo
+output=$(run_plain)
+check "exit 0"  "0" "$?"
+check "message" "1" "$(echo "$output" | grep -c 'No branches with unmerged work')"
+
+echo "== 8. cannot determine main branch =="
+rm -rf "$TMPDIR_TEST/r"
+mkdir -p "$TMPDIR_TEST/r"
+cd "$TMPDIR_TEST/r" || exit 1
+git init -q -b trunk .
+git config user.email test@example.com
+git config user.name "Test"
+echo a > a.txt && git add . && git commit -qm a
+"$SCRIPT" >/dev/null 2>&1
+check "exits non-zero" "1" "$?"
+
+echo "== 9. origin/HEAD takes precedence over local main =="
+new_repo
+git checkout -q -b devel
+echo d > d.txt && git add . && git commit -qm d
+git checkout -q main
+# Give main its own commit so it is genuinely unmerged relative to devel,
+# otherwise it would be filtered out as merged and the case proves nothing.
+echo m > m.txt && git add . && git commit -qm m
+git remote add origin .
+git update-ref refs/remotes/origin/devel refs/heads/devel
+git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/devel
+# With devel as the base, devel is excluded and main is the unmerged branch.
+output=$(run_plain)
+check "devel treated as base" "0" "$(echo "$output" | grep -cE '(^| )devel ')"
+check "main listed instead"   "1" "$(echo "$output" | grep -cE '(^| )main ')"
+
+echo "== 10. columns stay aligned across differing name lengths =="
+new_repo
+for name in a really-quite-a-long-branch-name 'mid@length'; do
+    git checkout -q main
+    git checkout -q -b "$name"
+    echo "$name" > "$(echo "$name" | tr -d '@/')".txt
+    git add .
+    git commit -qm "$name"
+done
+git checkout -q main
+output=$(run_plain)
+widths=$(echo "$output" | awk '{ print length($0) }' | sort -u | wc -l)
+check "all rows equal width" "1" "$widths"
+check "long name intact"     "1" "$(echo "$output" | grep -cF 'really-quite-a-long-branch-name')"
+check "at-name intact"       "1" "$(echo "$output" | grep -cF 'mid@length')"
+
+echo
+echo "passed: $passed   failed: $failed"
+[ "$failed" -eq 0 ]

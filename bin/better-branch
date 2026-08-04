@@ -1,22 +1,20 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[0;33m'
-NO_COLOR='\033[0m'
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly BLUE='\033[0;34m'
+readonly YELLOW='\033[0;33m'
+readonly NO_COLOR='\033[0m'
 
-count_commits() {
-    local branch="$1"
-    local base_branch="$2"
-    git rev-list --left-right --count "$base_branch"..."$branch"
-}
+# Tab-delimited because git forbids control characters in refnames, so no
+# branch name can contain one. Using a legal character such as @ splits names
+# like "feature@v2" across columns.
+readonly REF_FORMAT='%(objectname:short)%09%(refname:short)%09%(committerdate:relative)'
 
 # Determine the main branch: prefer origin's default, fall back to main/master.
-main_branch=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@')
+main_branch=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@' || true)
 if [ -z "$main_branch" ]; then
     for candidate in main master; do
         if git show-ref --verify --quiet "refs/heads/$candidate"; then
@@ -30,33 +28,45 @@ if [ -z "$main_branch" ]; then
     exit 1
 fi
 
-format_string="%(objectname:short)@%(refname:short)@%(committerdate:relative)"
-IFS=$'\n'
-
-# Collect rows first so we can size columns to their widest contents.
 headers=("Ahead" "Behind" "Branch" "Last Commit")
-widths=(${#headers[0]} ${#headers[1]} ${#headers[2]} ${#headers[3]} 0)
-rows=()
+widths=("${#headers[0]}" "${#headers[1]}" "${#headers[2]}" "${#headers[3]}" 0)
 
-for branchdata in $(git for-each-ref --sort=-authordate --format="$format_string" --no-merged="$main_branch" refs/heads/); do
-    sha=$(echo "$branchdata" | cut -d '@' -f1)
-    branch=$(echo "$branchdata" | cut -d '@' -f2)
-    time=$(echo "$branchdata" | cut -d '@' -f3)
-    [ "$branch" = "$main_branch" ] && continue
+aheads=()
+behinds=()
+branches=()
+times=()
+descriptions=()
 
-    description=$(git config branch."$branch".description || true)
-    ahead_behind=$(count_commits "$sha" "$main_branch")
-    ahead=$(echo "$ahead_behind" | cut -f2)
-    behind=$(echo "$ahead_behind" | cut -f1)
+# Collect rows first so columns can be sized to their widest contents.
+while IFS=$'\t' read -r sha branch time; do
+    if [ "$branch" = "$main_branch" ]; then
+        continue
+    fi
 
-    rows+=("$ahead@$behind@$branch@$time@$description")
+    # left..right is base-only..branch-only, so left is behind and right ahead.
+    read -r behind ahead < <(git rev-list --left-right --count "$main_branch...$sha")
+
+    description=$(git config "branch.$branch.description" || true)
+    # Descriptions are free-form and may span lines; the table shows the first.
+    description=${description%%$'\n'*}
+
+    aheads+=("$ahead")
+    behinds+=("$behind")
+    branches+=("$branch")
+    times+=("$time")
+    descriptions+=("$description")
 
     [ "${#ahead}" -gt "${widths[0]}" ] && widths[0]=${#ahead}
     [ "${#behind}" -gt "${widths[1]}" ] && widths[1]=${#behind}
     [ "${#branch}" -gt "${widths[2]}" ] && widths[2]=${#branch}
     [ "${#time}" -gt "${widths[3]}" ] && widths[3]=${#time}
     [ "${#description}" -gt "${widths[4]}" ] && widths[4]=${#description}
-done
+done < <(git for-each-ref --sort=-authordate --format="$REF_FORMAT" --no-merged="$main_branch" refs/heads/)
+
+if [ "${#branches[@]}" -eq 0 ]; then
+    echo "No branches with unmerged work relative to $main_branch"
+    exit 0
+fi
 
 # Only render the description column when at least one branch has a description.
 if [ "${widths[4]}" -gt 0 ]; then
@@ -70,7 +80,9 @@ row_format="${GREEN}%-${widths[0]}s ${RED}%-${widths[1]}s ${BLUE}%-${widths[2]}s
 
 make_divider() { printf '%*s' "$1" '' | tr ' ' '-'; }
 
+# shellcheck disable=SC2059 # row_format is built here, never from branch data
 printf "$row_format" "${headers[@]}"
+
 dividers=(
     "$(make_divider "${widths[0]}")"
     "$(make_divider "${widths[1]}")"
@@ -78,17 +90,14 @@ dividers=(
     "$(make_divider "${widths[3]}")"
 )
 [ "${widths[4]}" -gt 0 ] && dividers+=("$(make_divider "${widths[4]}")")
+# shellcheck disable=SC2059
 printf "$row_format" "${dividers[@]}"
 
-for row in "${rows[@]}"; do
-    ahead=$(echo "$row" | cut -d '@' -f1)
-    behind=$(echo "$row" | cut -d '@' -f2)
-    branch=$(echo "$row" | cut -d '@' -f3)
-    time=$(echo "$row" | cut -d '@' -f4)
+for i in "${!branches[@]}"; do
+    # shellcheck disable=SC2059
     if [ "${widths[4]}" -gt 0 ]; then
-        description=$(echo "$row" | cut -d '@' -f5-)
-        printf "$row_format" "$ahead" "$behind" "$branch" "$time" "$description"
+        printf "$row_format" "${aheads[$i]}" "${behinds[$i]}" "${branches[$i]}" "${times[$i]}" "${descriptions[$i]}"
     else
-        printf "$row_format" "$ahead" "$behind" "$branch" "$time"
+        printf "$row_format" "${aheads[$i]}" "${behinds[$i]}" "${branches[$i]}" "${times[$i]}"
     fi
 done

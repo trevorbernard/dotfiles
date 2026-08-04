@@ -24,9 +24,6 @@ fi
 # User local bin
 export PATH="$HOME/.local/bin:$PATH"
 
-# Plugin directory (vanilla zsh)
-ZSH_PLUGINS="$HOME/.zsh/plugins"
-
 # History configuration
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000
@@ -52,21 +49,8 @@ sudo-command-line() {
 zle -N sudo-command-line
 bindkey '\e\e' sudo-command-line
 
-# zsh-autosuggestions
-if [[ ! -d "$ZSH_PLUGINS/zsh-autosuggestions" ]]; then
-  mkdir -p "$ZSH_PLUGINS"
-  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_PLUGINS/zsh-autosuggestions"
-fi
-
-# zsh-syntax-highlighting
-if [[ ! -d "$ZSH_PLUGINS/zsh-syntax-highlighting" ]]; then
-  mkdir -p "$ZSH_PLUGINS"
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_PLUGINS/zsh-syntax-highlighting"
-fi
-
-# Load plugins
-source "$ZSH_PLUGINS/zsh-autosuggestions/zsh-autosuggestions.zsh" 2>/dev/null
-source "$ZSH_PLUGINS/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" 2>/dev/null
+# Autosuggestions and syntax highlighting are provided by
+# programs.zsh.{autosuggestions,syntaxHighlighting} in nixos/nix-darwin
 
 # Autosuggestions configuration
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5b6078"
@@ -99,12 +83,6 @@ alias e='emacs'
 # Environment variables
 export EDITOR="emacs"
 export COLORTERM="truecolor"
-
-# zsh-completions (additional completion definitions)
-if [[ ! -d "$ZSH_PLUGINS/zsh-completions" ]]; then
-  git clone https://github.com/zsh-users/zsh-completions "$ZSH_PLUGINS/zsh-completions"
-fi
-fpath=("$ZSH_PLUGINS/zsh-completions/src" $fpath)
 
 # Enable completions (with caching)
 autoload -Uz compinit

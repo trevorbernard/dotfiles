@@ -1,3 +1,7 @@
 tmux/.tmux/plugins
 .gitconfig.local
+
+# Claude Code writes machine-local state (permission grants and the absolute
+# paths they refer to) into settings.local.json. Only settings.json is shared.
 .claude/settings.local.json
+claude/settings.local.json

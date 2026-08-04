@@ -68,12 +68,17 @@ Both the macOS and linux branches of the zsh config add ~$HOME/bin~ to
 
 *** Claude
 
-Claude Code settings (~CLAUDE.md~ and ~settings.local.json~). Stowed to
+Claude Code settings (~CLAUDE.md~ and ~settings.json~). Stowed to
 ~$HOME/.claude~:
 
 #+begin_src bash
   stow -t $HOME/.claude claude
 #+end_src
+
+Only ~settings.json~ is tracked. Claude Code writes machine-local state
+into ~settings.local.json~ — permission grants and the absolute paths
+they refer to — so that file is gitignored and deliberately left
+unstowed, keeping it out of this repo.
 
 *** Ghostty
 

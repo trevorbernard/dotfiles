@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+# Exercises bin/eat-trailing-whitespace against the cases the original version
+# got wrong: partially staged files, filenames with spaces, renames, binaries,
+# CRLF endings, symlinks and conflicted paths.
+#
+# Each case builds a throwaway repo under a temp dir; nothing touches this one.
+
+set -uo pipefail
+
+readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly HOOK="$REPO_ROOT/bin/eat-trailing-whitespace"
+
+if [ ! -x "$HOOK" ]; then
+    echo "Not executable: $HOOK" >&2
+    exit 1
+fi
+
+readonly TMPDIR_TEST="$(mktemp -d)"
+trap 'rm -rf "$TMPDIR_TEST"' EXIT
+
+passed=0
+failed=0
+
+check() {
+    local label="$1" expected="$2" actual="$3"
+    if [ "$expected" = "$actual" ]; then
+        echo "  PASS  $label"
+        passed=$((passed + 1))
+    else
+        echo "  FAIL  $label"
+        echo "        expected: $(printf %q "$expected")"
+        echo "        actual:   $(printf %q "$actual")"
+        failed=$((failed + 1))
+    fi
+}
+
+# Starts each case from an empty repo so cases can't contaminate each other.
+new_repo() {
+    rm -rf "$TMPDIR_TEST/r"
+    mkdir -p "$TMPDIR_TEST/r"
+    cd "$TMPDIR_TEST/r" || exit 1
+    git init -q -b main .
+    git config user.email test@example.com
+    git config user.name "Test"
+}
+
+seed_commit() {
+    echo seed > seed.txt
+    git add .
+    git commit -qm init
+}
+
+echo "== 1. mixed staged/unstaged: unstaged work must NOT be committed =="
+new_repo
+seed_commit
+printf 'line1   \n' > mixed.txt
+git add mixed.txt
+printf 'line1   \nUNSTAGED-WIP\n' > mixed.txt
+warning=$("$HOOK" 2>&1 >/dev/null)
+check "staged blob is stripped"     "line1" "$(git cat-file blob :mixed.txt)"
+check "staged blob has no WIP line" "1"     "$(git cat-file blob :mixed.txt | wc -l)"
+# The whole point: the worktree keeps both its unstaged line and its own
+# trailing whitespace, because touching it is what caused the original bug.
+check "worktree byte-identical" "$(printf 'line1   \nUNSTAGED-WIP')" "$(cat mixed.txt)"
+check "warns about worktree"    "1" "$(echo "$warning" | grep -c 'mixed.txt')"
+
+echo "== 2. filename containing a space =="
+new_repo
+seed_commit
+printf 'x   \ny\n' > "my file.txt"
+git add "my file.txt"
+"$HOOK" >/dev/null 2>&1
+check "space-named file cleaned" "x" "$(git cat-file blob ':my file.txt' | head -1)"
+
+echo "== 3. renamed file (diff-filter R) =="
+new_repo
+printf 'old\n' > old.txt
+git add .
+git commit -qm init
+git mv old.txt new.txt
+printf 'renamed   \n' > new.txt
+git add new.txt
+"$HOOK" >/dev/null 2>&1
+check "renamed file cleaned" "renamed" "$(git cat-file blob :new.txt)"
+
+echo "== 4. binary file is left alone =="
+new_repo
+seed_commit
+printf 'A\x00B \x00C \n' > blob.bin
+git add blob.bin
+before=$(git rev-parse :blob.bin)
+"$HOOK" >/dev/null 2>&1
+check "binary blob unchanged" "$before" "$(git rev-parse :blob.bin)"
+
+echo "== 5. CRLF line endings preserved =="
+new_repo
+seed_commit
+printf 'a   \r\nb\r\n' > crlf.txt
+git add crlf.txt
+"$HOOK" >/dev/null 2>&1
+check "CR kept, spaces gone" 'a^M$b^M$' "$(git cat-file blob :crlf.txt | cat -A | tr -d '\n')"
+
+echo "== 6. symlink is skipped =="
+new_repo
+printf 'target   \n' > target.txt
+git add .
+git commit -qm init
+ln -s target.txt link
+git add link
+before=$(git rev-parse :link)
+"$HOOK" >/dev/null 2>&1
+check "symlink blob unchanged"  "$before" "$(git rev-parse :link)"
+check "symlink still a symlink" "yes"     "$([ -L link ] && echo yes || echo no)"
+
+echo "== 7. no staged files =="
+new_repo
+seed_commit
+output=$("$HOOK" 2>&1)
+check "exit 0"  "0"                           "$?"
+check "message" "No staged files to process"  "$output"
+
+echo "== 8. unborn HEAD (first commit) =="
+new_repo
+printf 'first   \n' > first.txt
+git add first.txt
+"$HOOK" >/dev/null 2>&1
+check "exit 0"             "0"     "$?"
+check "cleaned pre-commit" "first" "$(git cat-file blob :first.txt)"
+
+echo "== 9. file with no trailing newline =="
+new_repo
+seed_commit
+printf 'nonewline   ' > nn.txt
+git add nn.txt
+"$HOOK" >/dev/null 2>&1
+check "no newline added" "nonewline" "$(git cat-file blob :nn.txt | cat -A | tr -d '\n')"
+
+echo "== 10. unmerged/conflicted path is skipped, not crashed on =="
+new_repo
+printf 'base\n' > c.txt
+git add .
+git commit -qm init
+git checkout -q -b other
+printf 'theirs   \n' > c.txt
+git commit -qam theirs
+git checkout -q main
+printf 'ours   \n' > c.txt
+git commit -qam ours
+git merge other -q >/dev/null 2>&1
+"$HOOK" >/dev/null 2>&1
+check "survives conflicted index" "0" "$?"
+
+echo "== 11. clean file with no trailing whitespace is not touched =="
+new_repo
+seed_commit
+printf 'clean\n' > clean.txt
+git add clean.txt
+before=$(git rev-parse :clean.txt)
+output=$("$HOOK" 2>&1)
+check "blob unchanged"     "$before" "$(git rev-parse :clean.txt)"
+check "reported 0 cleaned" "1"       "$(echo "$output" | grep -c '(0 cleaned)')"
+
+echo "== 12. fully staged file cleans both index and worktree =="
+new_repo
+seed_commit
+printf 'fully   \nstaged\t\n' > both.txt
+git add both.txt
+"$HOOK" >/dev/null 2>&1
+check "worktree cleaned"       "fully\$staged\$" "$(cat -A both.txt | tr -d '\n')"
+check "nothing left unstaged"  "A  both.txt"     "$(git status --short both.txt)"
+
+echo
+echo "passed: $passed   failed: $failed"
+[ "$failed" -eq 0 ]

@@ -1,22 +1,84 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-staged_files=$(git diff --cached --name-only --diff-filter=AM)
+# Strips spaces and tabs at end of line. The capture keeps a carriage return
+# so CRLF files don't get silently converted to LF.
+readonly STRIP_EXPR='s/[ \t]+(\r?)$/$1/'
 
-if [ -z "$staged_files" ]; then
+# Matches the same lines STRIP_EXPR rewrites. The optional CR has to be a real
+# carriage return; grep -E has no \r escape.
+readonly TRAILING_WS_PATTERN=$'[[:blank:]]\r?$'
+
+# Symlinks and gitlinks have no text content to rewrite.
+readonly MODE_SYMLINK=120000
+readonly MODE_GITLINK=160000
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Not inside a git work tree" >&2
+    exit 1
+fi
+
+staged_files=()
+while IFS= read -r -d '' file; do
+    staged_files+=("$file")
+done < <(git diff --cached --name-only -z --diff-filter=ACMR)
+
+if [ ${#staged_files[@]} -eq 0 ]; then
     echo "No staged files to process"
     exit 0
 fi
 
 echo "Processing staged files for trailing whitespace removal..."
 
-for file in $staged_files; do
-    if [ -f "$file" ] && grep -q '[[:space:]]$' "$file"; then
-        echo "Removing trailing whitespace from: $file"
-        perl -i -pe 's/[ \t\r]+$//' "$file"
-        git add "$file"
+# Reports the index entry for a path as "<mode> <sha>", or nothing if the path
+# is absent or unmerged (a conflicted path has several stage entries).
+index_entry() {
+    local file="$1"
+    git ls-files --stage -- "$file" | awk 'NR > 1 { exit 1 } { print $1, $2 }'
+}
+
+cleaned=0
+index_only=()
+
+for file in "${staged_files[@]}"; do
+    entry=$(index_entry "$file") || continue
+    [ -n "$entry" ] || continue
+    read -r mode sha <<<"$entry"
+
+    if [ "$mode" = "$MODE_SYMLINK" ] || [ "$mode" = "$MODE_GITLINK" ]; then
+        continue
     fi
+
+    # -I makes grep treat binary content as non-matching, so binaries are
+    # skipped here rather than being rewritten.
+    if ! git cat-file blob "$sha" | grep -qIE "$TRAILING_WS_PATTERN"; then
+        continue
+    fi
+
+    if git diff --quiet -- "$file"; then
+        # The working tree matches the index, so rewriting the file in place
+        # and restaging it can't pull in anything the user hadn't staged.
+        perl -i -pe "$STRIP_EXPR" "$file"
+        git add -- "$file"
+    else
+        # The file has unstaged changes. Rewrite only the blob that will be
+        # committed and leave the working tree untouched -- restaging here
+        # would sweep those unstaged changes into the commit.
+        new_sha=$(git cat-file blob "$sha" | perl -pe "$STRIP_EXPR" | git hash-object -w --stdin)
+        git update-index --cacheinfo "$mode,$new_sha,$file"
+        index_only+=("$file")
+    fi
+
+    echo "Removing trailing whitespace from: $file"
+    cleaned=$((cleaned + 1))
 done
 
-echo "Trailing whitespace removal completed for staged files"
+if [ ${#index_only[@]} -gt 0 ]; then
+    echo
+    echo "The following files had unstaged changes, so only the staged copy was" >&2
+    echo "cleaned. The working tree still has trailing whitespace:" >&2
+    printf '  %s\n' "${index_only[@]}" >&2
+fi
+
+echo "Trailing whitespace removal completed for staged files ($cleaned cleaned)"

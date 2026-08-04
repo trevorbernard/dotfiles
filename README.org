@@ -32,6 +32,19 @@ To install everything at once:
   stow -t $HOME/.config/tuicr tuicr
 #+end_src
 
+** Tests
+
+Scripts under ~tests/~ are plain bash and run standalone. They build
+throwaway git repositories under a temp directory, so they never touch
+this one:
+
+#+begin_src bash
+  ./tests/test-eat-trailing-whitespace
+#+end_src
+
+~tests/~ is deliberately not a stow package — ~bin/~ is stowed onto
+~PATH~, so test scripts must live outside it.
+
 ** Configurations
 
 *** bin

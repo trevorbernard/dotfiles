@@ -1,7 +1,7 @@
-CLAUDE.md
+CLAUDE.local.md
 .dir-locals.el
 ignore_dir
-.claude
+.claude/settings.local.json
 .classpath
 .project
 .settings

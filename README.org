@@ -27,7 +27,7 @@ To install everything at once:
   for pkg in git lein tmux zsh; do stow -t $HOME $pkg; done
   stow -t $HOME/bin bin
   stow -t $HOME/.claude claude
-  stow -t $HOME/.config ghostty starship
+  stow -t $HOME/.config ghostty podman starship
   stow -t $HOME/.config/hunk hunk
   stow -t $HOME/.config/tuicr tuicr
 #+end_src
@@ -100,8 +100,8 @@ and useful aliases.
 
 *** Podman
 
-Container registry policy (~containers/policy.json~). Intended for
-~$HOME/.config/containers/policy.json~; not currently installed:
+Container registry policy. Stowed to ~$HOME/.config~ (creates
+~$HOME/.config/containers/policy.json~):
 
 #+begin_src bash
   stow -t $HOME/.config podman

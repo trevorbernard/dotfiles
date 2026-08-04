@@ -63,8 +63,8 @@ Personal shell scripts (~better-branch~, ~eat-trailing-whitespace~,
   stow -t $HOME/bin bin
 #+end_src
 
-The macOS branch of the zsh config adds ~$HOME/bin~ to ~PATH~ (the linux
-branch already does).
+Both the macOS and linux branches of the zsh config add ~$HOME/bin~ to
+~PATH~.
 
 *** Claude
 

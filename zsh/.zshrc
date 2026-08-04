@@ -67,12 +67,14 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS=(
 # Aliases (OS-specific)
 if (( $+commands[eza] )); then
   alias ls='eza --group-directories-first --color=always'
-  alias ll='ls -lag'
   alias lt='ls --tree'
+elif [[ "$OS" == "macos" ]]; then
+  # BSD ls rejects --color; -G is its equivalent.
+  alias ls='ls -G'
 else
   alias ls='ls --color=auto'
-  alias ll='ls -lag'
 fi
+alias ll='ls -lag'
 
 alias gst='git status'
 alias gdc='git diff --cached'

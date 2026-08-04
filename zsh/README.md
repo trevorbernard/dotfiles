@@ -5,18 +5,36 @@ Vanilla zsh configuration designed to work across macOS and Linux systems with a
 ## Features
 
 - **Cross-platform**: Works on macOS and Linux
-- **Self-installing plugins**: Automatically clones required zsh plugins
-- **Tool detection**: Only initializes tools that are available
-- **Platform-specific paths**: Handles Homebrew on macOS and user bins on Linux
-- **Completion caching**: Fast shell startup with cached completions
+- **Tool detection**: Only initializes tools that are available, so the config degrades gracefully on a bare machine
+- **Platform-specific paths**: Homebrew and the nix daemon on macOS, user bins on both
+- **Completion caching**: `compinit` only rebuilds the dump when it is more than 24 hours old
+- **No plugin manager**: nothing is cloned or compiled at shell startup
 
 ## Plugins
 
-Plugins are automatically installed to `~/.zsh/plugins/`:
+Autosuggestions and syntax highlighting are provided by the system, not by this
+file — `programs.zsh.autosuggestions` and `programs.zsh.syntaxHighlighting` in
+nixos (Linux) or nix-darwin (macOS). `.zshrc` only configures them:
 
-- **zsh-autosuggestions** - Fish-like autosuggestions
-- **zsh-syntax-highlighting** - Command syntax highlighting
-- **zsh-completions** - Additional completion definitions
+- `ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE` to match the Catppuccin Macchiato palette
+- `ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE` to stop suggesting on long lines
+- `ZSH_AUTOSUGGEST_CLEAR_WIDGETS` so history search and the fzf widget clear the suggestion
+
+If you are on a machine without nix, install the two plugins however that
+system prefers and source them; nothing else in this file depends on them.
+
+## What's configured
+
+- **History**: 10k entries in `~/.zsh_history`, shared between sessions, duplicates and space-prefixed commands ignored
+- **Options**: `AUTO_CD`, `CORRECT`, `NO_BEEP`, `EXTENDED_GLOB`
+- **Sudo widget**: `Esc Esc` prefixes the current line with `sudo`, replacing the oh-my-zsh sudo plugin
+- **Completion**: menu selection, case-insensitive matching, `LS_COLORS`-aware listings
+- **Aliases**: `ls`/`ll`/`lt` (eza when present), `gst`, `gdc`, `e`
+- **Environment**: `EDITOR=emacs`, `COLORTERM=truecolor`, Wayland backend hints on Linux
+
+Tools are initialized only when installed: direnv, zoxide, fzf, starship, atuin.
+zoxide also aliases `cd` to `z`, except under Claude Code, where the
+non-standard `cd` confuses the agent.
 
 ## Setup
 
@@ -62,9 +80,11 @@ bash <(curl https://raw.githubusercontent.com/ellie/atuin/main/install.sh)
    chsh -s $(which zsh)
    ```
 
-3. **Link the configuration**:
+3. **Link the configuration** with GNU Stow, as with every other package in this
+   repo:
    ```bash
-   ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc
+   cd ~/dotfiles
+   stow -t $HOME zsh
    ```
 
 4. **Start a new shell**:
@@ -72,17 +92,10 @@ bash <(curl https://raw.githubusercontent.com/ellie/atuin/main/install.sh)
    exec zsh
    ```
 
-The configuration will automatically clone required plugins on first run.
-
 ## Configuration Structure
 
 ```
 ~/dotfiles/zsh/
-├── .zshrc          # Main configuration file
+├── .zshrc          # Main configuration file (stowed to ~/.zshrc)
 └── README.md       # This file
-
-~/.zsh/plugins/     # Auto-installed plugins (not in dotfiles)
-├── zsh-autosuggestions/
-├── zsh-syntax-highlighting/
-└── zsh-completions/
 ```

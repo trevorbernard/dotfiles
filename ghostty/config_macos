@@ -1,7 +1,0 @@
-font-family = JetBrains Mono
-font-size = 16
-macos-option-as-alt = left
-shell-integration = zsh
-window-padding-y = 12,0
-window-padding-balance = true
-window-theme = ghostty

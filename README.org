@@ -27,7 +27,7 @@ To install everything at once:
   for pkg in git lein tmux zsh; do stow -t $HOME $pkg; done
   stow -t $HOME/bin bin
   stow -t $HOME/.claude claude
-  stow -t $HOME/.config ghostty podman starship
+  stow -t $HOME/.config ghostty ghostty-linux podman starship  # or ghostty-macos
   stow -t $HOME/.config/hunk hunk
   stow -t $HOME/.config/tuicr tuicr
 #+end_src
@@ -82,13 +82,25 @@ unstowed, keeping it out of this repo.
 
 *** Ghostty
 
-Configuration for the Ghostty terminal emulator with platform-specific
-splits (~config~, ~config_macos~, ~config_linux~). Stowed to
-~$HOME/.config~ (creates ~$HOME/.config/ghostty/~):
+Configuration for the Ghostty terminal emulator. Shared settings live in
+the ~ghostty~ package; the platform-specific overrides live in
+~ghostty-linux~ and ~ghostty-macos~, which are separate packages so that
+only the one matching this machine is ever linked:
 
 #+begin_src bash
-  stow -t $HOME/.config ghostty
+  stow -t $HOME/.config ghostty ghostty-linux   # or ghostty-macos
 #+end_src
+
+Each package holds a ~ghostty/~ subdirectory, the same shape as ~podman~,
+so the files land in ~$HOME/.config/ghostty/~. Stow folds that directory
+into a symlink if only one package claims it and unfolds it again when
+the second arrives, so stowing the two in either order or separately all
+work.
+
+They are separate packages rather than three files in one on purpose.
+Stow links every file in a package, so holding ~config_macos~ next to
+~config_linux~ put both on every machine, and since ~config~ pulls them in
+last, the macOS padding quietly won on Linux.
 
 *** Git
 

@@ -1,12 +1,20 @@
 # Theme
 theme = catppuccin-macchiato.conf
 
+# Font
+font-family = JetBrains Mono
+font-size = 16
+
 # Visual
 background-blur = true
 background-opacity = 0.95
 background-blur-radius = 20
 window-padding-x = 5
 window-padding-y = 5
+window-theme = ghostty
+
+# Shell
+shell-integration = zsh
 
 # Keybindings - Terminal control characters
 keybind = ctrl+m=text:\r
@@ -26,6 +34,9 @@ wait-after-command = true
 abnormal-command-exit-runtime = 250
 quit-after-last-window-closed = false
 
-# Platform overrides
+# Platform overrides, loaded after everything above so they win. Exactly one of
+# these exists on any machine: the platform files live in their own stow
+# packages (ghostty-linux, ghostty-macos) precisely so the wrong one cannot be
+# linked in. The ? prefix makes the absent one non-fatal.
 config-file = ?config_macos
 config-file = ?config_linux

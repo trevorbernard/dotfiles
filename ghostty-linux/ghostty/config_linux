@@ -1,0 +1,3 @@
+# Linux-only overrides. Everything shared with macOS lives in ghostty/config.
+# Stowed to $HOME/.config/ghostty, not $HOME/.config -- see the README.
+window-decoration = auto

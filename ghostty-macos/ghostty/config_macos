@@ -1,0 +1,7 @@
+# macOS-only overrides. Everything shared with Linux lives in ghostty/config.
+# Stowed to $HOME/.config/ghostty, not $HOME/.config -- see the README.
+macos-option-as-alt = left
+
+# Extra headroom under the title bar; the shared config uses a plain 5.
+window-padding-y = 12,0
+window-padding-balance = true

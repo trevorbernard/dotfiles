@@ -27,7 +27,7 @@ To install everything at once:
   for pkg in git lein tmux zsh; do stow -t $HOME $pkg; done
   stow -t $HOME/bin bin
   stow -t $HOME/.claude claude
-  stow -t $HOME/.config ghostty ghostty-linux podman starship  # or ghostty-macos
+  stow -t $HOME/.config ghostty ghostty-linux podman rex starship  # or ghostty-macos
   stow -t $HOME/.config/hunk hunk
   stow -t $HOME/.config/tuicr tuicr
 #+end_src

@@ -5,3 +5,5 @@ macos-option-as-alt = left
 # Extra headroom under the title bar; the shared config uses a plain 5.
 window-padding-y = 12,0
 window-padding-balance = true
+
+macos-non-native-fullscreen = visible-menu

@@ -135,6 +135,16 @@ The target directory must exist first (run ~hunk~ once or ~mkdir -p
 Leiningen configuration for Clojure development with CIDER integration
 and useful aliases.
 
+*** macOS defaults
+
+~macos/defaults.sh~ sets app preferences that macOS keeps in ~defaults~
+instead of a config file, such as Rex's Option-as-Alt. It isn't a stow
+package, so run it directly:
+
+#+begin_src bash
+  ./macos/defaults.sh
+#+end_src
+
 *** Podman
 
 Container registry policy. Stowed to ~$HOME/.config~ (creates

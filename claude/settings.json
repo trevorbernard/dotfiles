@@ -34,5 +34,19 @@
   "alwaysThinkingEnabled": true,
   "enableAllProjectMcpServers": false,
   "tui": "fullscreen",
-  "theme": "dark"
+  "theme": "dark",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/tbernard/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
 }

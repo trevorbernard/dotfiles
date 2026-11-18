@@ -18,6 +18,21 @@ send("send_esc", "Send Escape", "ctrl+[", "\027")
 send("send_esc_cr", "Send Escape Return", "shift+enter", "\027\r")
 send("send_esc_del", "Send Escape Delete", "ctrl+backspace", "\027\127")
 
+-- Rex drops shift from alt+shift+<symbol>: the key arrives without usable
+-- text, so the encoder falls back to the unshifted codepoint and M-> reaches
+-- the program as M-. (ESC .). Send the shifted character explicitly. US layout.
+local shifted = {
+  ["`"] = "~", ["1"] = "!", ["2"] = "@", ["3"] = "#", ["4"] = "$",
+  ["5"] = "%", ["6"] = "^", ["7"] = "&", ["8"] = "*", ["9"] = "(",
+  ["0"] = ")", ["-"] = "_", ["="] = "+", ["["] = "{", ["]"] = "}",
+  ["\\"] = "|", [";"] = ":", ["'"] = '"', [","] = "<", ["."] = ">",
+  ["/"] = "?",
+}
+for base, char in pairs(shifted) do
+  send("send_meta_" .. string.byte(char), "Send Meta " .. char,
+    "alt+shift+" .. base, "\027" .. char)
+end
+
 rex.bind("alt+left", "pane.focus", { direction = "left" })
 rex.bind("alt+right", "pane.focus", { direction = "right" })
 rex.bind("alt+up", "pane.focus", { direction = "up" })

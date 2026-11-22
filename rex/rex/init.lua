@@ -33,11 +33,4 @@ for base, char in pairs(shifted) do
     "alt+shift+" .. base, "\027" .. char)
 end
 
-rex.bind("alt+left", "pane.focus", { direction = "left" })
-rex.bind("alt+right", "pane.focus", { direction = "right" })
-rex.bind("alt+up", "pane.focus", { direction = "up" })
-rex.bind("alt+down", "pane.focus", { direction = "down" })
-rex.bind("ctrl+b>shift+'", "pane.split", { direction = "down" })
-rex.bind("ctrl+b>shift+5", "pane.split", { direction = "right" })
-rex.bind("ctrl+b>r", "client.config.reload")
-rex.bind("ctrl+b>ctrl+b", "pane.send_key", { key = "ctrl+b" })
+require("key")

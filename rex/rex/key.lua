@@ -7,7 +7,9 @@ for _, direction in ipairs({ "left", "right", "up", "down" }) do
   rex.bind(prefix .. direction, "pane.focus", { direction = direction })
 end
 rex.bind(prefix .. "o", "pane.focus_next")
-rex.bind(prefix .. ";", "pane.focus_recent.in_tab")
+-- Rex has no last-pane or last-tab action. Navigate Back walks one focus
+-- history across tabs and sessions, so it stands in for both ; and l.
+rex.bind(prefix .. ";", "client.navigate.back")
 
 -- " and % on a US layout: bindings match on the unshifted key.
 rex.bind(prefix .. "shift+'", "pane.split", { direction = "down" })
@@ -17,7 +19,7 @@ rex.bind(prefix .. "x", "pane.close")
 rex.bind(prefix .. "c", "client.tab.new")
 rex.bind(prefix .. "n", "client.tab.next")
 rex.bind(prefix .. "p", "client.tab.previous")
-rex.bind(prefix .. "l", "client.tab.recent.in_session")
+rex.bind(prefix .. "l", "client.navigate.back")
 -- Rex numbers tabs from 1, where tmux numbered windows from 0.
 for index = 1, 9 do
   rex.bind(prefix .. index, "client.tab.goto", { index = index })
